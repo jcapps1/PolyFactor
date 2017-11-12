@@ -202,6 +202,7 @@ var Polynomial = exports.Polynomial = function () {
                 throw 'InvalidPolynomial'; //throw keyword is used here            
             }
             //this.addOnes(); // adds ones
+            //this.sortpolysresults = this.exsplit();
             this.termsplit(); // is currently removing the added ones for some reason
             this.addOnes();
             console.log('The split terms are: ' + this.arr.toString());
@@ -211,7 +212,14 @@ var Polynomial = exports.Polynomial = function () {
             console.log(this.polynomials.toString());
             console.log(this.constants.toString());
             this.sortpolysresults = this.expsplit();
+            this.termsplit();
+            this.addOnes();
+            this.polyorconst();
+            console.log('The split terms are: ' + this.arr.toString());
+            console.log('HERE IS CURRENT POLY ' + this.polynomial);
             console.log(this.sortpolysresults.toString());
+            this.polynomials = this.arr;
+            console.log(this.polynomials.toString());
             this.bubbleSort(this.sortpolysresults, this.polynomials);
             console.log(this.sortpolysresults.toString());
             if (this.sortpolysresults[0] > 2) {
@@ -381,15 +389,53 @@ var Polynomial = exports.Polynomial = function () {
             this.polynomials.forEach(function (poly) {
                 // splits the exponent from the terms containing variables
                 var power = 0;
+                console.log('PRINTING poly ' + poly);
                 if (poly.includes('^')) {
                     power = parseInt(poly.split('^')[1]);
+                    console.log('power = ' + power);
                 } else {
                     power = 1;
                 }
                 results.push(power);
             });
+            for(var x = 0; x < results.length; x++) {
+                if((results[x] - 1) != [results[x+1]]) {
+                    console.log('results[x] - results[x+1] is ' + results[x] + ' - ' + results[x+1]);
+                    var chck = results[x] - results[x+1];
+                    var tmp = results[x] - 1;        // difference of exponents
+                    results.splice(x+1, 0, tmp);
+                    //this.polynomials[x+1] = tmp;
+                    console.log('New exponents ' + results.toString());
+                    //console.log('Starting nested loop');
+                    for(var y = 0; y < this.polynomial.length; y++) {
+                        if(this.polynomial[y] == '^' && this.polynomial[y+1] == results[x] && chck != 1) {
+                            //console.log('CURRENT PLACE ' + this.polynomial[y+1]);
+                            var tmp2 = this.polynomial[y+1];
+                            var sign = this.polynomial[y+2];
+                            //console.log('POLYNOMIAL ' + this.polynomial);
+                            //console.log('HERE IS tmp2 ' + tmp2 + ' AND HERE IS sign ' + sign);
+                            var chng = sign + '0x^' + tmp;
+                            //console.log('NEW VARIABLE ' + chng);
+                            //this.polynomial.splice(y+1, 0, chng);
+                            var count = this.polynomial.length;
+                            this.polynomial = Splicer(this.polynomial, y+2, count, chng);
+                            //console.log('NEW POLYNOMIAL ' + this.polynomial);
+                        }
+                    }
+                }
+            }
             this.steps.push("The exponents of the polynomial terms are: " + results.toString());
             return results;
+
+            function Splicer(str, index, count, add) {
+                if(index < 0) {
+                    index = str.length + index;
+                    if(index < 0) {
+                        index = 0;
+                    }
+                }
+                return str.slice(0, index) + (add || "") + str.slice(index, count);
+            }
         }
     }, {
         key: 'testTerms',
